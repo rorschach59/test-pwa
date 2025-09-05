@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Test PWA</title>
+    <meta name="theme-color" content="#0f172a" />
+
+    <!-- Manifest + Icône favicon -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230f172a'/><text x='50' y='58' font-size='44' text-anchor='middle' fill='white'>P</text></svg>">
+
+    <!-- iOS: mode web app -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Test PWA" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  </head>
+  <body>
+    <main>
+      <h1>Test PWA</h1>
+      <p>Cette page est un POC PWA. Sur iPhone, installez via Partager → Ajouter à l'écran d'accueil.</p>
+      <button id="installBtn" hidden>Installer l'application</button>
+      <button id="enableNotificationsBtn" hidden>Activer les notifications</button>
+      <button id="testNotificationBtn" hidden>Envoyer une notification test</button>
+      <button id="updateBtn" hidden>Mettre à jour</button>
+      <p id="status"></p>
+    </main>
+
+    <script src="/app.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+  </body>
+  </html>
+
+
