@@ -2,6 +2,9 @@
   command = "bash bump-sw-version.sh"
   publish = "."
 
+[functions]
+  directory = "netlify/functions"
+
 [[headers]]
   for = "/sw.js"
   [headers.values]

@@ -4,6 +4,8 @@ const statusEl = document.getElementById('status');
 const enableBtn = document.getElementById('enableNotificationsBtn');
 const testBtn = document.getElementById('testNotificationBtn');
 const updateBtn = document.getElementById('updateBtn');
+const fetchPandaBtn = document.getElementById('fetchPandaBtn');
+const apiResult = document.getElementById('apiResult');
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -100,6 +102,17 @@ updateBtn?.addEventListener('click', async () => {
       });
     }
   } catch (_) {}
+});
+
+fetchPandaBtn?.addEventListener('click', async () => {
+  try {
+    if (apiResult) apiResult.textContent = 'Chargement...';
+    const res = await fetch('/.netlify/functions/pandascore-running');
+    const text = await res.text();
+    if (apiResult) apiResult.textContent = text;
+  } catch (e) {
+    if (apiResult) apiResult.textContent = 'Erreur: ' + String(e);
+  }
 });
 
 

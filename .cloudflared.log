@@ -21,3 +21,4 @@
 2025-09-05T12:52:55Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.13
 2025/09/05 14:52:55 failed to sufficiently increase receive buffer size (was: 208 kiB, wanted: 7168 kiB, got: 416 kiB). See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details.
 2025-09-05T12:52:56Z INF Registered tunnel connection connIndex=0 connection=c8eaf5f2-a135-4112-aeb8-3d87871d20f0 event=0 ip=198.41.200.13 location=cdg07 protocol=quic
+2025-09-05T13:49:40Z INF Initiating graceful shutdown due to signal terminated ...
