@@ -15,11 +15,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Test PWA" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main>
       <h1>Test PWA</h1>
-      <p>Cette page est un POC PWA/p>
+      <p>Cette page est un POC PWA. Sur iPhone, installez via Partager → Ajouter à l'écran d'accueil.</p>
       <button id="installBtn" hidden>Installer l'application</button>
       <button id="enableNotificationsBtn" hidden>Activer les notifications</button>
       <button id="testNotificationBtn" hidden>Envoyer une notification test</button>
@@ -27,6 +28,15 @@
       <hr />
       <button id="fetchPandaBtn">Charger matches LoL (PandaScore)</button>
       <pre id="apiResult" style="white-space: pre-wrap; background:#f1f5f9; padding: .75rem; border-radius:.5rem; margin-top:.75rem;"></pre>
+      <button id="fetchLolFeedBtn">Charger flux agrégé LoL</button>
+      <section id="lolFeed" class="feed-section">
+        <h2>En cours</h2>
+        <div id="lolRunning" class="feed-list"></div>
+        <h2>À venir</h2>
+        <div id="lolUpcoming" class="feed-list"></div>
+        <h2>Passées</h2>
+        <div id="lolPast" class="feed-list"></div>
+      </section>
       <p id="status"></p>
     </main>
 

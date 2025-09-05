@@ -6,6 +6,10 @@ const testBtn = document.getElementById('testNotificationBtn');
 const updateBtn = document.getElementById('updateBtn');
 const fetchPandaBtn = document.getElementById('fetchPandaBtn');
 const apiResult = document.getElementById('apiResult');
+const fetchLolFeedBtn = document.getElementById('fetchLolFeedBtn');
+const lolRunning = document.getElementById('lolRunning');
+const lolUpcoming = document.getElementById('lolUpcoming');
+const lolPast = document.getElementById('lolPast');
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -22,6 +26,68 @@ installBtn?.addEventListener('click', async () => {
   deferredPrompt = null;
   installBtn.hidden = true;
 });
+
+fetchLolFeedBtn?.addEventListener('click', async () => {
+  try {
+    const res = await fetch('/.netlify/functions/lol-feed');
+    const data = await res.json();
+    renderFeed(data);
+  } catch (e) {
+    console.error('Erreur lol-feed:', e);
+  }
+});
+
+function renderFeed(data) {
+  renderList(lolRunning, data?.running || []);
+  renderList(lolUpcoming, data?.upcoming || []);
+  renderList(lolPast, data?.past || []);
+}
+
+function renderList(container, matches) {
+  if (!container) return;
+  if (!Array.isArray(matches)) { container.innerHTML = '<div>Aucune donnée</div>'; return; }
+  container.innerHTML = matches.map(m => renderCard(m)).join('');
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleString(); } catch { return iso; }
+}
+
+function renderCard(m) {
+  const oppA = m.opponents?.[0] || null;
+  const oppB = m.opponents?.[1] || null;
+  const scoreA = m.results?.[0]?.score ?? '';
+  const scoreB = m.results?.[1]?.score ?? '';
+  const live = (m.status || '').toLowerCase() === 'running';
+  const primaryStream = Array.isArray(m.streams_list) ? m.streams_list.find(s => s.main) : null;
+  const leagueLabel = m.league?.name ? escapeHtml(m.league.name) : '';
+  const serieLabel = m.serie?.full_name ? escapeHtml(m.serie.full_name) : '';
+  return `
+    <div class="card">
+      <div class="title">${escapeHtml(m.name || '')}</div>
+      <div class="meta">
+        ${leagueLabel}${serieLabel ? ' · ' + serieLabel : ''}${m.number_of_games ? ' · BO' + m.number_of_games : ''}
+      </div>
+      <div class="teams">
+        <div class="team">
+          <img src="${oppA?.image_url || ''}" alt="" />
+          <span>${escapeHtml(oppA?.acronym || oppA?.name || 'TBD')}</span>
+        </div>
+        <div class="score">${scoreA} : ${scoreB}</div>
+        <div class="team" style="justify-content:flex-end;">
+          <span>${escapeHtml(oppB?.acronym || oppB?.name || 'TBD')}</span>
+          <img src="${oppB?.image_url || ''}" alt="" />
+        </div>
+      </div>
+      <div class="status">${live ? '<span class="badge badge-live">LIVE</span> · ' : ''}${escapeHtml(m.status || '')} · ${formatDate(m.begin_at)}</div>
+      ${primaryStream ? `<div class="actions"><a class="watch-link" href="${primaryStream.raw_url || primaryStream.embed_url}" target="_blank" rel="noopener noreferrer">Regarder</a></div>` : ''}
+    </div>`;
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 // Demande d'autorisation et notification à chaque visite
 document.addEventListener('DOMContentLoaded', () => {
