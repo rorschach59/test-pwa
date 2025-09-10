@@ -96,8 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.getRegistrations().then(regs => {
       for (const reg of regs) {
         const scriptURL = (reg.active && reg.active.scriptURL) || (reg.installing && reg.installing.scriptURL) || (reg.waiting && reg.waiting.scriptURL) || '';
-        // Si ce n'est pas le SW WonderPush loader, on le désenregistre
-        if (scriptURL && !scriptURL.endsWith('/wonderpush-service-worker-loader.js')) {
+        // Si ce n'est pas le SW WonderPush, on le désenregistre
+        if (scriptURL && !scriptURL.endsWith('/wonderpush-sw.js')) {
           reg.unregister().catch(() => {});
         }
       }
