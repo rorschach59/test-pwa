@@ -91,6 +91,18 @@ function escapeHtml(s) {
 
 // Demande d'autorisation et notification à chaque visite
 document.addEventListener('DOMContentLoaded', () => {
+  // Nettoyage des anciens service workers (si présents) pour éviter les conflits avec WonderPush
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      for (const reg of regs) {
+        const scriptURL = (reg.active && reg.active.scriptURL) || (reg.installing && reg.installing.scriptURL) || (reg.waiting && reg.waiting.scriptURL) || '';
+        // Si ce n'est pas le SW WonderPush loader, on le désenregistre
+        if (scriptURL && !scriptURL.endsWith('/wonderpush-service-worker-loader.js')) {
+          reg.unregister().catch(() => {});
+        }
+      }
+    }).catch(() => {});
+  }
   const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   const isiOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
   if (!('Notification' in window)) return;
