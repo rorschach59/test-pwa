@@ -1,11 +1,14 @@
 // Netlify Scheduled Function: envoie un push à tous les abonnements stockés
 // Cron défini dans netlify.toml (*/5 * * * *)
 
-const { getStore } = require('@netlify/blobs');
+let getStore;
 const webpush = require('web-push');
 
 exports.handler = async () => {
   try {
+    if (!getStore) {
+      ({ getStore } = await import('@netlify/blobs'));
+    }
     const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } = process.env;
     if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY || !VAPID_SUBJECT) {
       return { statusCode: 500, body: 'Variables VAPID manquantes' };

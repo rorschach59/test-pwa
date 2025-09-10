@@ -2,7 +2,6 @@
 // Requiert: @netlify/blobs (configurée dans package.json)
 
 const crypto = require('crypto');
-const { getStore } = require('@netlify/blobs');
 
 function subscriptionId(sub) {
   const endpoint = sub && sub.endpoint ? String(sub.endpoint) : Math.random().toString(36).slice(2);
@@ -11,6 +10,7 @@ function subscriptionId(sub) {
 
 exports.handler = async (event) => {
   try {
+    const { getStore } = await import('@netlify/blobs');
     if (event.httpMethod !== 'POST') {
       return { statusCode: 405, body: 'Method Not Allowed' };
     }

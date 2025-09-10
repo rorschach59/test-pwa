@@ -1,11 +1,14 @@
 // Netlify Function: envoi de push à tous les abonnements via appel HTTP
 // Sécurisé par un token facultatif (?token=...) si CRON_TOKEN est défini côté Netlify
 
-const { getStore } = require('@netlify/blobs');
+let getStore;
 const webpush = require('web-push');
 
 exports.handler = async (event) => {
   try {
+    if (!getStore) {
+      ({ getStore } = await import('@netlify/blobs'));
+    }
     if (event.httpMethod !== 'GET' && event.httpMethod !== 'POST') {
       return { statusCode: 405, body: 'Method Not Allowed' };
     }
