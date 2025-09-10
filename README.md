@@ -1,36 +1,49 @@
-## Test PWA – Déploiement Netlify et versioning du Service Worker
+## PWA minimaliste avec notifications push (WonderPush)
 
-### Structure
-- `index.html`, `manifest.json`, `app.js`, `styles.css`, `sw.js`
-- `netlify.toml`: headers (no-cache sur `sw.js`/`index.html`) + commande de build
-- `VERSION`: version semver du service worker
-- `bump-sw-version.sh`: script de bump `major|minor|patch` et injection dans `sw.js`
+### Objectif
+- L’utilisateur clique sur un bouton, s’inscrit en 1 clic et reçoit des notifications sur son smartphone.
+- Cross‑browser: Chrome, Firefox, Safari, Opera.
+- Pas d’installation PWA requise, seulement l’autorisation navigateur.
 
-### Versioning (semver)
-- Format: `MAJOR.MINOR.PATCH` (ex: `1.2.3`)
-  - MAJOR: grosse feature/réséau incompatible
-  - MINOR: nouvelle petite feature
-  - PATCH: correctif/ajustement mineur
+### Structure minimale
+- `index.html`: inclut WonderPush SDK et le bouton d’activation.
+- `manifest.json`: nécessaire pour PWA (icônes, couleurs).
+- `app.js`: branche le bouton pour appeler `WonderPush.subscribe()`.
+- `styles.css`: styles de base.
+- `netlify.toml`: en-têtes utiles (no-cache pour `index.html`).
 
-#### Utilisation locale
-```bash
-./bump-sw-version.sh patch   # 0.0.0 -> 0.0.1
-./bump-sw-version.sh minor   # 0.0.1 -> 0.1.0
-./bump-sw-version.sh major   # 0.1.0 -> 1.0.0
+### Intégration WonderPush
+Dans `index.html` (head), ajouter:
+
+```html
+<script src="https://cdn.by.wonderpush.com/sdk/1.1/wonderpush-loader.min.js" async></script>
+<script>
+  window.WonderPush = window.WonderPush || [];
+  WonderPush.push(["init", {
+    webKey: "VOTRE_WEB_KEY",
+  }]);
+  // Optionnel: auto-display du prompt d’autorisation
+  // WonderPush.push(["subscribe"]);
+</script>
 ```
-Le script met à jour `VERSION` et remplace la ligne `const SW_VERSION = 'x.y.z';` dans `sw.js`.
 
-### Déploiement Netlify
-1. Poussez le dossier dans un repo Git (GitHub/GitLab).
-2. Sur Netlify → New site from Git → sélectionnez le repo.
-3. Build command: `bash bump-sw-version.sh` (ou définissez la variable env `BUMP=patch`).
-4. Publish directory: `.`
+Dans `app.js`, sur clic utilisateur:
 
-À chaque déploiement, la version du SW est incrémentée selon `BUMP` (par défaut `patch`). La PWA affichera le bouton “Mettre à jour” lorsqu’une nouvelle version est disponible et rechargera après activation.
+```js
+document.getElementById('enableNotificationsBtn')?.addEventListener('click', () => {
+  window.WonderPush = window.WonderPush || [];
+  window.WonderPush.push(["subscribe"]);
+});
+```
 
-### Conseils PWA en prod
-- Garder `sw.js` et `index.html` sans cache agressif (cf. `netlify.toml`).
-- Incrémenter la version du SW à chaque changement d’assets pour garantir l’update.
-- Tester l’update: ouvrir la PWA installée → bouton “Mettre à jour”.
+### Notes compatibilité
+- iOS (Safari): nécessite iOS ≥ 16.4. Aucune installation PWA requise pour recevoir des push Web, mais l’utilisateur doit autoriser.
+- Les politiques d’affichage (verrouillé, bruit, badges) sont gérées par l’OS et WonderPush.
+
+### Déploiement rapide
+1. Déployer les fichiers statiques (Netlify/Vercel/autres).
+2. Configurer WonderPush (domaine autorisé, Web Key).
+3. Ouvrir la page et cliquer “Activer les notifications”.
+4. Envoyer une notification test depuis le dashboard WonderPush.
 
 

@@ -139,12 +139,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 enableBtn?.addEventListener('click', async () => {
   try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const reg = await navigator.serviceWorker?.ready;
-      await reg?.showNotification('Notifications activées ✅', { body: 'Vous recevrez une notification à chaque visite.' });
-      if (enableBtn) enableBtn.hidden = true;
-      if (testBtn) testBtn.hidden = false;
+    if (window.WonderPush && Array.isArray(window.WonderPush)) {
+      window.WonderPush.push(["subscribe"]);
+      if (enableBtn) enableBtn.disabled = true;
+    } else {
+      // Fallback: demande de permission native
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        const reg = await navigator.serviceWorker?.ready;
+        await reg?.showNotification('Notifications activées ✅', { body: 'Vous recevrez une notification à chaque visite.' });
+        if (enableBtn) enableBtn.hidden = true;
+        if (testBtn) testBtn.hidden = false;
+      }
     }
   } catch (_) {}
 });

@@ -1,5 +1,5 @@
 // Version substituée à chaque déploiement (Netlify build) via bump-sw-version.sh
-const SW_VERSION = '0.0.8';
+const SW_VERSION = '0.0.9';
 const CACHE_NAME = `test-pwa-cache-v1-${SW_VERSION}`;
 const ASSETS = [
   '/',
