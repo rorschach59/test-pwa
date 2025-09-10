@@ -14,6 +14,7 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL }}
           CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
           PUSH_BROADCAST_URL: ${{ secrets.PUSH_BROADCAST_URL }}
+          SUBSCRIPTION_JSON: ${{ secrets.SUBSCRIPTION_JSON }}
         run: |
           set -euo pipefail
           URL="${PUSH_BROADCAST_URL:-}"
@@ -25,6 +26,11 @@ jobs:
             URL="$SITE_URL/.netlify/functions/push-broadcast?token=$CRON_TOKEN"
           fi
           echo "Calling: $URL"
-          curl -fsS "$URL" | cat
+          if [ -n "${SUBSCRIPTION_JSON:-}" ]; then
+            echo "Using single-subscription POST payload"
+            curl -fsS -X POST -H "Content-Type: application/json" -d "{\"subscription\": ${SUBSCRIPTION_JSON}}" "$URL" | cat
+          else
+            curl -fsS "$URL" | cat
+          fi
 
 

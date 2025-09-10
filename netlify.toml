@@ -24,7 +24,4 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer-when-downgrade"
 
-[[scheduled.functions]]
-  name = "push-cron"
-  schedule = "*/5 * * * *"
 

@@ -3,8 +3,6 @@ const installBtn = document.getElementById('installBtn');
 const statusEl = document.getElementById('status');
 const enableBtn = document.getElementById('enableNotificationsBtn');
 const testBtn = document.getElementById('testNotificationBtn');
-const pushSubscribeBtn = document.getElementById('pushSubscribeBtn');
-const pushSendBtn = document.getElementById('pushServerSendBtn');
 const updateBtn = document.getElementById('updateBtn');
 const fetchPandaBtn = document.getElementById('fetchPandaBtn');
 const apiResult = document.getElementById('apiResult');
@@ -106,15 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Afficher le bouton pour déclencher la demande
   if (Notification.permission !== 'granted') {
     if (enableBtn) enableBtn.hidden = false;
-    if (pushSubscribeBtn) pushSubscribeBtn.hidden = false;
   } else {
     // Permission déjà accordée → notifier à chaque visite
     navigator.serviceWorker?.ready.then(reg => {
       reg.showNotification('Bienvenue 👋', { body: 'Visite détectée sur la PWA' }).catch(() => {});
     });
     if (testBtn) testBtn.hidden = false;
-    if (pushSubscribeBtn) pushSubscribeBtn.hidden = false;
-    if (pushSendBtn) pushSendBtn.hidden = false;
   }
 
   // Détection nouvelle version du SW
@@ -159,72 +154,6 @@ testBtn?.addEventListener('click', async () => {
     const reg = await navigator.serviceWorker?.ready;
     await reg?.showNotification('Notification test 🔔', { body: 'Ceci est un test manuel.' });
   } catch (_) {}
-});
-
-// Helpers Push
-async function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
-
-async function getServerPublicKey() {
-  const res = await fetch('/.netlify/functions/push-pubkey', { cache: 'no-store' });
-  const json = await res.json();
-  if (!json.publicKey) throw new Error('Clé publique VAPID manquante');
-  return json.publicKey;
-}
-
-async function getOrCreatePushSubscription() {
-  const reg = await navigator.serviceWorker.ready;
-  const existing = await reg.pushManager.getSubscription();
-  if (existing) return existing;
-  const publicKey = await getServerPublicKey();
-  const appServerKey = await urlBase64ToUint8Array(publicKey);
-  return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appServerKey });
-}
-
-pushSubscribeBtn?.addEventListener('click', async () => {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-      alert('Autorisez les notifications pour vous abonner.');
-      return;
-    }
-    const sub = await getOrCreatePushSubscription();
-    console.log('Push subscription', sub);
-    try {
-      await fetch('/.netlify/functions/push-save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub }) });
-    } catch (_) {}
-    if (pushSendBtn) pushSendBtn.hidden = false;
-    alert('Abonnement Push OK');
-  } catch (e) {
-    console.error('Abonnement Push échoué', e);
-    alert('Erreur abonnement Push: ' + String(e));
-  }
-});
-
-pushSendBtn?.addEventListener('click', async () => {
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.getSubscription();
-    if (!sub) { alert('Pas d\'abonnement Push.'); return; }
-    const res = await fetch('/.netlify/functions/push-send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subscription: sub, title: 'Test serveur 🔔', body: 'Envoi depuis Netlify Function', data: { url: '/' } })
-    });
-    if (!res.ok) throw new Error(await res.text());
-    alert('Push envoyé (si le téléphone est verrouillé, la notif s\'affichera).');
-  } catch (e) {
-    console.error('Envoi push', e);
-    alert('Erreur envoi push: ' + String(e));
-  }
 });
 
 updateBtn?.addEventListener('click', async () => {
