@@ -1,0 +1,14 @@
+{
+  "name": "test-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "bash bump-sw-version.sh"
+  },
+  "dependencies": {
+    "web-push": "^3.6.6"
+  }
+}
+
+
