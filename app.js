@@ -198,6 +198,9 @@ pushSubscribeBtn?.addEventListener('click', async () => {
     }
     const sub = await getOrCreatePushSubscription();
     console.log('Push subscription', sub);
+    try {
+      await fetch('/.netlify/functions/push-save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub }) });
+    } catch (_) {}
     if (pushSendBtn) pushSendBtn.hidden = false;
     alert('Abonnement Push OK');
   } catch (e) {

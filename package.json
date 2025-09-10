@@ -7,7 +7,8 @@
     "build": "bash bump-sw-version.sh"
   },
   "dependencies": {
-    "web-push": "^3.6.6"
+    "web-push": "^3.6.6",
+    "@netlify/blobs": "^6.3.0"
   }
 }
 
