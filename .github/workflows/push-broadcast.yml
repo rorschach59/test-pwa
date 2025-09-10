@@ -1,0 +1,30 @@
+name: Push Broadcast (every 5 minutes)
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  call-broadcast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Netlify push-broadcast function
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
+          PUSH_BROADCAST_URL: ${{ secrets.PUSH_BROADCAST_URL }}
+        run: |
+          set -euo pipefail
+          URL="${PUSH_BROADCAST_URL:-}"
+          if [ -z "$URL" ]; then
+            if [ -z "${SITE_URL:-}" ] || [ -z "${CRON_TOKEN:-}" ]; then
+              echo "Missing PUSH_BROADCAST_URL or SITE_URL/CRON_TOKEN secrets" >&2
+              exit 1
+            fi
+            URL="$SITE_URL/.netlify/functions/push-broadcast?token=$CRON_TOKEN"
+          fi
+          echo "Calling: $URL"
+          curl -fsS "$URL" | cat
+
+
